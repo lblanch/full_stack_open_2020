@@ -1,0 +1,22 @@
+note over browser:
+user writes message in text box 
+and presses submit button 
+end note
+
+note over browser:
+browser executes the event handler which:
+- prevents the default action to happen
+- creates the new note
+- re-prints all the notes
+- sends the new note to the server
+end note
+
+browser->server: HTTP POST https://studies.cs.helsinki.fi/exampleapp/new_note_spa
+
+note over server:
+server processes the new note and
+returns 201 CREATED 
+end note
+
+server-->browser: 201 CREATED
+
