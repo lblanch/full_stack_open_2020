@@ -14,10 +14,13 @@ const App = (props) => {
 
 	return(
 		<div>
+			<h1>Anecdote of the day</h1>
 			<div>{anecdotes[selected]}</div>
 			<div>has {votes[selected]} votes</div>
 			<button onClick={handleVoteClick}>vote</button>
 			<button onClick={handleNextClick}>next anecdote</button>
+			<h1>Anecdote with most votes</h1>
+			<div>{props.anecdotes[votes.findIndex((x) => x === Math.max(...votes))]}</div>
 		</div>
 	)
 }
