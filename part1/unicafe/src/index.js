@@ -2,31 +2,30 @@ import React, {useState} from 'react';
 import ReactDOM from 'react-dom';
 
 const Button = ({handleClick, text}) => <button onClick={handleClick}>{text}</button>
+
 const Display = ({text}) => <div>{text}</div>
+
 const Statistics = ({good, neutral, bad}) => {
   const total = good + neutral + bad
-  const average = () => {
-    if (total !== 0) {
-      return (good - bad) / total
-    }
-    return 0
-  }
-  const positivePercent = () => {
-    if (total !== 0) {
-      return (good * 100) / total
-    }
-    return 0
-  }
+  const average = () =>  (good - bad) / total
+  const positivePercent = () => (good * 100) / total
+  let content = <Display text="No feedback given" />
 
-  return (
-    <div>
-      <h1>statistics</h1>
+  if(total !== 0) {
+    content = <>
       <Display text={`good ${good}`} />
       <Display text={`neutral ${neutral}`} />
       <Display text={`bad ${bad}`} />
       <Display text={`all ${total}`} />
       <Display text={`average ${average()}`} />
       <Display text={`positive ${positivePercent()} %`} />
+    </>
+  }
+
+  return (
+    <div>
+      <h1>statistics</h1>
+      {content}
     </div>
   )
 }
