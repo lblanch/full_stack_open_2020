@@ -9,6 +9,7 @@ const App = () => {
     const filteredCountries = countries.filter((country) => country.name.match(new RegExp(search,"i")))
 
     const handleSearchChange = (event) => setSearch(event.target.value)
+    const handleCountryButton = (event) => setSearch(event.target.value)
     
     useEffect(() => {
         axios
@@ -19,7 +20,7 @@ const App = () => {
     return (
         <div>
             find countries <input value={search} onChange={handleSearchChange} />
-            <Countries countries={filteredCountries} />
+            <Countries countries={filteredCountries} handleCountryButton={handleCountryButton} />
         </div>
     )
 }

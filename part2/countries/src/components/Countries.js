@@ -13,7 +13,7 @@ const Country = ({country}) => (
     </div>
 )
 
-const Countries = ({countries}) => {
+const Countries = ({countries, handleCountryButton}) => {
     if (countries.length === 0) {
         return <p>No countries match the filter</p>
     }
@@ -23,7 +23,14 @@ const Countries = ({countries}) => {
     }
 
     if (countries.length > 1) {
-        return <div>{countries.map((country) => <p key={country.name}>{country.name}</p>)}</div>
+        return (
+            <div>{countries.map((country) => (
+                    <div key={country.name}>
+                        {country.name} 
+                        <button value={country.name} onClick={handleCountryButton}>show</button>
+                    </div>
+            ))}</div>
+        )
     }
 
     return <Country country={countries[0]} />
