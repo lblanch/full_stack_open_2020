@@ -5,11 +5,21 @@ import Countries from './components/Countries'
 const App = () => {
     const [countries, setCountries] = useState([])
     const [search, setSearch] = useState('')
+    const [weather, setWeather] = useState({})
     
     const filteredCountries = countries.filter((country) => country.name.match(new RegExp(search,"i")))
 
     const handleSearchChange = (event) => setSearch(event.target.value)
     const handleCountryButton = (event) => setSearch(event.target.value)
+    const handleRequestWeather = (capital) => {
+        axios.get(`http://api.weatherstack.com/current?access_key=${process.env.REACT_APP_API_KEY}&query=${capital}`)
+            .then((response) => setWeather(response.data))
+    }
+    const resetWeather = () => {
+        if(Object.keys(weather).length !== 0) {
+            setWeather({})
+        }
+    }
     
     useEffect(() => {
         axios
@@ -20,7 +30,13 @@ const App = () => {
     return (
         <div>
             find countries <input value={search} onChange={handleSearchChange} />
-            <Countries countries={filteredCountries} handleCountryButton={handleCountryButton} />
+            <Countries 
+                countries={filteredCountries}
+                weather={weather}
+                handleCountryButton={handleCountryButton}
+                handleRequestWeather={handleRequestWeather}
+                resetWeather={resetWeather}
+             />
         </div>
     )
 }
