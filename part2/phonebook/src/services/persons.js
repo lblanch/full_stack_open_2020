@@ -13,7 +13,7 @@ const createPerson = (newPerson) => (
 )
 
 const updatePerson = (modifiedPerson, id) => (
-    axios.post(`${baseUrl}/${id}`, modifiedPerson)
+    axios.put(`${baseUrl}/${id}`, modifiedPerson)
         .then((response) => response.data)
 )
 
