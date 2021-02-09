@@ -15,7 +15,6 @@ const App = () => {
     const filteredPersons = persons.filter((person) => person.name.match(new RegExp(filter,"i")))
 
     const showInfoMessage = (message) => {
-        console.log(message)
         setType('info')
         setMessage(message)
         setTimeout(() => {
@@ -37,8 +36,13 @@ const App = () => {
     const handleDelete = (id, name) => {
         if(window.confirm(`Delete ${name}?`)) {
             personsService.deletePerson(id)
-            setPersons(persons.filter((person) => person.id !== id))
-            showInfoMessage(`Deleted ${name}`)
+                .then(() => {
+                    setPersons(persons.filter((person) => person.id !== id))
+                    showInfoMessage(`Deleted ${name}`)
+                })
+                .catch(error => {
+                    showErrorMessage(`There was an error deleting ${name}!`)
+                })
         }
     }
     const handleAddPersonClick = (event) => {
@@ -54,21 +58,30 @@ const App = () => {
             if (!window.confirm(`${newName} is already added to the phonebook, replace the old number with a new one?`)) {
                 return
             }
-            personsService.updatePerson(newPerson, foundPerson.id).then(response => {
-                setPersons(persons.map(person => person.id !== foundPerson.id ? person : response))
-                setNewName('')
-                setNewNumber('')
-                showInfoMessage(`Updated ${response.name}`)
-            })
+            personsService.updatePerson(newPerson, foundPerson.id)
+                .then(response => {
+                    setPersons(persons.map(person => person.id !== foundPerson.id ? person : response))
+                    setNewName('')
+                    setNewNumber('')
+                    showInfoMessage(`Updated ${response.name}`)
+                })
+                .catch(error => {
+                    showErrorMessage(`There was an error updating ${newPerson.name}!`)
+                })
+
             return
         }
 
-        personsService.createPerson(newPerson).then(response => {
-            setPersons(persons.concat(response))
-            setNewName('')
-            setNewNumber('')
-            showInfoMessage(`Added ${response.name}`)
-        })
+        personsService.createPerson(newPerson)
+            .then(response => {
+                setPersons(persons.concat(response))
+                setNewName('')
+                setNewNumber('')
+                showInfoMessage(`Added ${response.name}`)
+            })
+            .catch(error => {
+                showErrorMessage(`There was an error adding ${newPerson.name}!`)
+            })
     }
 
     useEffect(() => personsService.getAll().then(response => setPersons(response)), [])
