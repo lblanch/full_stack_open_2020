@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import Persons from './components/Persons'
 import Filter from './components/Filter'
 import PersonForm from './components/PersonForm'
+import Notification from './components/Notification'
 import personsService from './services/persons'
 
 const App = () => {
@@ -9,7 +10,26 @@ const App = () => {
     const [ newName, setNewName ] = useState('')
     const [ newNumber, setNewNumber ] = useState('')
     const [ filter, setFilter ] = useState('')
+    const [ message, setMessage ] = useState('')
+    const [ type, setType ] = useState('info')
     const filteredPersons = persons.filter((person) => person.name.match(new RegExp(filter,"i")))
+
+    const showInfoMessage = (message) => {
+        console.log(message)
+        setType('info')
+        setMessage(message)
+        setTimeout(() => {
+            setMessage('')
+        }, 5000)
+    }
+
+    const showErrorMessage = (message) => {
+        setType('error')
+        setMessage(message)
+        setTimeout(() => {
+            setMessage('')
+        }, 5000)
+    }
 
     const handleChangeName = (event) => setNewName(event.target.value)
     const handleChangeNumber = (event) => setNewNumber(event.target.value)
@@ -18,6 +38,7 @@ const App = () => {
         if(window.confirm(`Delete ${name}?`)) {
             personsService.deletePerson(id)
             setPersons(persons.filter((person) => person.id !== id))
+            showInfoMessage(`Deleted ${name}`)
         }
     }
     const handleAddPersonClick = (event) => {
@@ -37,6 +58,7 @@ const App = () => {
                 setPersons(persons.map(person => person.id !== foundPerson.id ? person : response))
                 setNewName('')
                 setNewNumber('')
+                showInfoMessage(`Updated ${response.name}`)
             })
             return
         }
@@ -45,6 +67,7 @@ const App = () => {
             setPersons(persons.concat(response))
             setNewName('')
             setNewNumber('')
+            showInfoMessage(`Added ${response.name}`)
         })
     }
 
@@ -53,6 +76,7 @@ const App = () => {
     return (
         <div>
             <h1>Phonebook</h1>
+            <Notification message={message} type={type} />
             <Filter filter={filter} handleChangeFilter={handleChangeFilter} />
             <h2>add a new entry</h2>
             <PersonForm 
