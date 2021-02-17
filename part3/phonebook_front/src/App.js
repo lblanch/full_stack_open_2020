@@ -41,7 +41,7 @@ const App = () => {
                     showInfoMessage(`Deleted ${name}`)
                 })
                 .catch(error => {
-                    showErrorMessage(`There was an error deleting ${name}!`)
+                    showErrorMessage(`There was an error deleting ${name}: ${error.response.data.error}`)
                 })
         }
     }
@@ -66,7 +66,7 @@ const App = () => {
                     showInfoMessage(`Updated ${response.name}`)
                 })
                 .catch(error => {
-                    showErrorMessage(`There was an error updating ${newPerson.name}!`)
+                    showErrorMessage(`There was an error updating ${newPerson.name}: ${error.response.data.error}`)
                 })
 
             return
@@ -80,11 +80,14 @@ const App = () => {
                 showInfoMessage(`Added ${response.name}`)
             })
             .catch(error => {
-                showErrorMessage(`There was an error adding ${newPerson.name}!`)
+                showErrorMessage(`There was an error adding ${newPerson.name}: ${error.response.data.error}`)
             })
     }
 
-    useEffect(() => personsService.getAll().then(response => setPersons(response)), [])
+    useEffect(() => personsService.getAll()
+                        .then(response => setPersons(response))
+                        .catch(error => showErrorMessage(`There was an error fetching data from the server: ${error.message}`))
+    , [])
 
     return (
         <div>
