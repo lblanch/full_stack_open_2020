@@ -63,7 +63,7 @@ describe('total likes', () => {
         expect(listHelper.totalLikes([])).toBe(0)
     })
 
-    test('of a list with only one element equals the likes of that element', () => {
+    test('of a list with one element equals the likes of that element', () => {
         expect(listHelper.totalLikes([blogs[0]])).toBe(blogs[0].likes)
     })
 
@@ -77,7 +77,7 @@ describe('favorite blog', () => {
         expect(listHelper.favoriteBlog([])).toBeUndefined()
     })
 
-    test('of a list with only one element is the likes of that element', () => {
+    test('of a list with one element is the likes of that element', () => {
         const fav = {
             title: blogs[0].title,
             author: blogs[0].author,
@@ -94,5 +94,27 @@ describe('favorite blog', () => {
             likes: 12,
         }
         expect(listHelper.favoriteBlog(blogs)).toEqual(fav)
+    })
+})
+
+describe('most blogs', () => {
+    test('of an empty list is undefined', () => {
+        expect(listHelper.mostBlogs([])).toBeUndefined()
+    })
+
+    test('of a list with one element is the author of that element with one blog', () => {
+        const most = {
+            author: 'Michael Chan',
+            blogs: 1
+        }
+        expect(listHelper.mostBlogs([blogs[0]])).toEqual(most)
+    })
+
+    test('of a bigger list is determined right', () => {
+        const most = {
+            author: 'Robert C. Martin',
+            blogs: 3
+        }
+        expect(listHelper.mostBlogs(blogs)).toEqual(most)
     })
 })
