@@ -3,7 +3,10 @@ const morgan = require('morgan')
 const logger = require('./logger')
 
 morgan.token('body', (req) => JSON.stringify(req.body))
-const morganLogger = morgan(':method :url :status :res[content-length] - :response-time ms :body')
+const morganLogger = morgan(
+    ':method :url :status :res[content-length] - :response-time ms :body',
+    { skip: () => process.env.NODE_ENV === 'test' }
+)
 
 const errorHandler = (error, request, response, next) => {
     logger.error('[Error handler] ', error.name, ': ', error.message)
