@@ -151,3 +151,103 @@ describe('DELETE', () => {
         expect(error.body).toHaveProperty('error')
     })
 })
+
+describe('PUT', () => {
+    test('blog is updated to server correctly', async () => {
+        const existingBlogs = await helper.blogsInDb()
+        const updatedBlog = {
+            title: 'A timing attack with CSS selectors and Javascript',
+            author: 'Sigurd Kolltveit',
+            url: 'https://blog.sheddow.xyz/css-timing-attack/',
+            likes: 33
+        }
+
+        const returnedBlog = await api
+            .put(`/api/blogs/${existingBlogs[0].id}`)
+            .send(updatedBlog)
+            .expect(200)
+            .expect('Content-Type', /application\/json/)
+
+        expect(returnedBlog.body.title).not.toEqual(existingBlogs[0].title)
+        expect(returnedBlog.body.author).not.toEqual(existingBlogs[0].author)
+        expect(returnedBlog.body.url).not.toEqual(existingBlogs[0].url)
+        expect(returnedBlog.body.likes).not.toEqual(existingBlogs[0].likes)
+        expect(returnedBlog.body.title).toEqual(updatedBlog.title)
+        expect(returnedBlog.body.author).toEqual(updatedBlog.author)
+        expect(returnedBlog.body.url).toEqual(updatedBlog.url)
+        expect(returnedBlog.body.likes).toEqual(updatedBlog.likes.toString())
+    })
+
+    test('blog is partially updated to server correctly', async () => {
+        const existingBlogs = await helper.blogsInDb()
+        const updatedBlog = {
+            title: 'A timing attack with CSS selectors and Javascript',
+            author: 'Sigurd Kolltveit',
+        }
+
+        const returnedBlog = await api
+            .put(`/api/blogs/${existingBlogs[0].id}`)
+            .send(updatedBlog)
+            .expect(200)
+            .expect('Content-Type', /application\/json/)
+
+        expect(returnedBlog.body.title).not.toEqual(existingBlogs[0].title)
+        expect(returnedBlog.body.author).not.toEqual(existingBlogs[0].author)
+        expect(returnedBlog.body.title).toEqual(updatedBlog.title)
+        expect(returnedBlog.body.author).toEqual(updatedBlog.author)
+        expect(returnedBlog.body.url).toEqual(existingBlogs[0].url)
+        expect(returnedBlog.body.likes).toEqual(existingBlogs[0].likes)
+    })
+
+    test('invalid blog returns stus 400', async () => {
+        const existingBlogs = await helper.blogsInDb()
+        const updatedBlog = {
+            title: '',
+            author: 'Sigurd Kolltveit',
+            url: 'https://blog.sheddow.xyz/css-timing-attack/'
+        }
+
+        const error = await api
+            .put(`/api/blogs/${existingBlogs[0].id}`)
+            .send(updatedBlog)
+            .expect(400)
+            .expect('Content-Type', /application\/json/)
+
+        expect(error.body).toHaveProperty('error')
+    })
+
+    test('non existing id returns status 404', async () => {
+        const wrongId = await helper.nonExistingId()
+        const updatedBlog = {
+            title: 'A timing attack with CSS selectors and Javascript',
+            author: 'Sigurd Kolltveit',
+            url: 'https://blog.sheddow.xyz/css-timing-attack/',
+            likes: 4
+        }
+
+        const error = await api
+            .put(`/api/blogs/${wrongId}`)
+            .send(updatedBlog)
+            .expect(404)
+            .expect('Content-Type', /application\/json/)
+
+        expect(error.body).toHaveProperty('error')
+    })
+
+    test('invalid id returns status 400', async () => {
+        const newBlog = {
+            title: 'A timing attack with CSS selectors and Javascript',
+            author: 'Sigurd Kolltveit',
+            url: 'https://blog.sheddow.xyz/css-timing-attack/',
+            likes: 4
+        }
+
+        const error = await api
+            .put('/api/blogs/1')
+            .send(newBlog)
+            .expect(400)
+            .expect('Content-Type', /application\/json/)
+
+        expect(error.body).toHaveProperty('error')
+    })
+})
