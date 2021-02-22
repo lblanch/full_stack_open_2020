@@ -48,7 +48,6 @@ test('new blog is saved to server correctly', async () => {
         likes: 33
     }
 
-    //We receive status 200, and receive the newly saved note as json
     await api
         .post('/api/blogs')
         .send(newBlog)
@@ -58,7 +57,22 @@ test('new blog is saved to server correctly', async () => {
     const blogsAtEnd = await helper.blogsInDb()
     const contents = blogsAtEnd.map(b => b.content)
 
-    //The total amount of notes has been increased
     expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length + 1)
     expect(contents).toContain(newBlog.content)
+})
+
+test('new blog without likes defaults to 0 likes', async () => {
+    const newBlog = {
+        title: 'A timing attack with CSS selectors and Javascript',
+        author: 'Sigurd Kolltveit',
+        url: 'https://blog.sheddow.xyz/css-timing-attack/'
+    }
+
+    const createdBlog = await api
+        .post('/api/blogs')
+        .send(newBlog)
+        .expect(201)
+        .expect('Content-Type', /application\/json/)
+
+    expect(createdBlog.body.likes).toBe('0')
 })
