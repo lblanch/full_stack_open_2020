@@ -76,3 +76,42 @@ test('new blog without likes defaults to 0 likes', async () => {
 
     expect(createdBlog.body.likes).toBe('0')
 })
+
+test('new blog with missing author returns status 400', async () => {
+    const newBlog = {
+        title: 'A timing attack with CSS selectors and Javascript',
+        url: 'https://blog.sheddow.xyz/css-timing-attack/',
+        likes: 4
+    }
+
+    await api
+        .post('/api/blogs')
+        .send(newBlog)
+        .expect(400)
+})
+
+test('new blog with missing url returns status 400', async () => {
+    const newBlog = {
+        title: 'A timing attack with CSS selectors and Javascript',
+        author: 'Sigurd Kolltveit',
+        likes: 4
+    }
+
+    await api
+        .post('/api/blogs')
+        .send(newBlog)
+        .expect(400)
+})
+
+test('new blog with missing title returns status 400', async () => {
+    const newBlog = {
+        author: 'Sigurd Kolltveit',
+        url: 'https://blog.sheddow.xyz/css-timing-attack/',
+        likes: 4
+    }
+
+    await api
+        .post('/api/blogs')
+        .send(newBlog)
+        .expect(400)
+})
