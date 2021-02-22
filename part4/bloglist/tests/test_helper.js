@@ -43,4 +43,16 @@ const blogsInDb = async () => {
     return await Blog.find({})
 }
 
-module.exports = { initialBlogs, blogsInDb }
+const nonExistingId = async () => {
+    const blog = new Blog({ title: 'tobedeleted', author: 'toberemoved', url: 'tobeeliminated' })
+    await blog.save()
+    await blog.remove()
+
+    return blog._id.toString()
+}
+
+const specificBlogInDb = async (id) => {
+    return await Blog.findById(id)
+}
+
+module.exports = { initialBlogs, blogsInDb, nonExistingId, specificBlogInDb }
