@@ -28,3 +28,14 @@ test('fetch blogs from server', async () => {
 
     expect(receivedBlogs.body.length).toBe(helper.initialBlogs.length)
 })
+
+test('blog contains id property', async () => {
+    const receivedBlogs = await api.get('/api/blogs')
+        .expect(200)
+        .expect('Content-type', /application\/json/)
+
+    receivedBlogs.body.forEach(blog => {
+        expect(blog).toHaveProperty('id')
+        expect(blog).not.toHaveProperty('_id')
+    })
+})
