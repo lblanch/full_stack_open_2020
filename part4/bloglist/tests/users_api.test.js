@@ -124,3 +124,79 @@ describe('POST users', () => {
         expect(usersAtEnd.length).toEqual(usersAtStart.length)
     })
 })
+
+describe('POST login', () => {
+    test('valid username an password receives token', async () => {
+        const loginUser = {
+            username: helper.initialUsers[0].username,
+            password: helper.initialUsers[0].password
+        }
+
+        const returnedToken = await api.post('/api/login')
+            .send(loginUser)
+            .expect(200)
+            .expect('Content-type', /application\/json/)
+
+        expect(returnedToken.body).toHaveProperty('token')
+        expect(returnedToken.body.name).toEqual(helper.initialUsers[0].name)
+        expect(returnedToken.body.username).toEqual(helper.initialUsers[0].username)
+    })
+
+    test('non existing username returns status 401', async () => {
+        const loginUser = {
+            username: 'not_root',
+            password: helper.initialUsers[0].password
+        }
+
+        const error = await api.post('/api/login')
+            .send(loginUser)
+            .expect(401)
+            .expect('Content-type', /application\/json/)
+
+        expect(error.body).toHaveProperty('error')
+        expect(error.body).not.toHaveProperty('token')
+    })
+
+    test('wrong password returns status 401', async () => {
+        const loginUser = {
+            username: helper.initialUsers[0].username,
+            password: 'wrongpassword'
+        }
+
+        const error = await api.post('/api/login')
+            .send(loginUser)
+            .expect(401)
+            .expect('Content-type', /application\/json/)
+
+        expect(error.body).toHaveProperty('error')
+        expect(error.body).not.toHaveProperty('token')
+    })
+
+    test('missing password returns status 401', async () => {
+        const loginUser = {
+            username: helper.initialUsers[0].username
+        }
+
+        const error = await api.post('/api/login')
+            .send(loginUser)
+            .expect(401)
+            .expect('Content-type', /application\/json/)
+
+        expect(error.body).toHaveProperty('error')
+        expect(error.body).not.toHaveProperty('token')
+    })
+
+    test('missing username returns status 401', async () => {
+        const loginUser = {
+            password: helper.initialUsers[0].password
+        }
+
+        const error = await api.post('/api/login')
+            .send(loginUser)
+            .expect(401)
+            .expect('Content-type', /application\/json/)
+
+        expect(error.body).toHaveProperty('error')
+        expect(error.body).not.toHaveProperty('token')
+    })
+})

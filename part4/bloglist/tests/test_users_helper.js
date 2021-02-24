@@ -1,3 +1,5 @@
+const bcrypt = require('bcrypt')
+
 const User = require('../models/user')
 
 const initialUsers = [
@@ -26,10 +28,11 @@ const specificUserInDb = async (id) => {
 
 const reloadUsersDb = async () => {
     await User.deleteMany({})
-
+    const saltRounds = 10
     let UserObject
     for (let user of initialUsers) {
         UserObject = new User(user)
+        UserObject.passwordHash = await bcrypt.hash(user.password, saltRounds)
         await UserObject.save()
     }
 }
