@@ -22,8 +22,17 @@ const errorHandler = (error, request, response, next) => {
     next(error)
 }
 
+const tokenExtractor = (request, response, next) => {
+    const authHeader = request.get('authorization')
+    if (authHeader && authHeader.toLowerCase().startsWith('bearer')) {
+        request.token = authHeader.substring(7)
+    }
+
+    next()
+}
+
 const unknownEndpoint = (request, response) => {
     response.status(404).send({ error: 'unknown endpoint' })
 }
 
-module.exports = { morganLogger, errorHandler, unknownEndpoint }
+module.exports = { morganLogger, errorHandler, unknownEndpoint, tokenExtractor }
