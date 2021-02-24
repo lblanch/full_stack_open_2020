@@ -1,4 +1,5 @@
 const Blog = require('../models/blog')
+const User = require('../models/user')
 
 const initialBlogs = [
     {
@@ -55,4 +56,20 @@ const specificBlogInDb = async (id) => {
     return await Blog.findById(id)
 }
 
-module.exports = { initialBlogs, blogsInDb, nonExistingId, specificBlogInDb }
+const reloadBlogsDb = async (userId) => {
+    const blogsForUser = []
+    await Blog.deleteMany({})
+
+    let blogObject
+    for (let blog of initialBlogs) {
+        blogObject = new Blog(blog)
+        blogObject.user = userId
+        await blogObject.save()
+        blogsForUser.push(blogObject._id)
+    }
+    const user = await User.findById(userId)
+    user.blogs = blogsForUser
+    await user.save()
+}
+
+module.exports = { initialBlogs, blogsInDb, nonExistingId, specificBlogInDb, reloadBlogsDb }

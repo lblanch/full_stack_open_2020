@@ -1,4 +1,5 @@
 const bcrypt = require('bcrypt')
+const jwt = require('jsonwebtoken')
 
 const User = require('../models/user')
 
@@ -35,6 +36,29 @@ const reloadUsersDb = async () => {
         UserObject.passwordHash = await bcrypt.hash(user.password, saltRounds)
         await UserObject.save()
     }
+
+    const userForToken = {
+        username: UserObject.username,
+        id: UserObject._id
+    }
+
+    return { token: jwt.sign(userForToken, process.env.SECRET), user: UserObject }
 }
 
-module.exports = { initialUsers, usersInDb, nonExistingUserId, specificUserInDb, reloadUsersDb }
+const loginUser = (user) => {
+    const userForToken = {
+        username: user.username,
+        id: user._id
+    }
+
+    return jwt.sign(userForToken, process.env.SECRET)
+}
+
+module.exports = {
+    initialUsers,
+    usersInDb,
+    nonExistingUserId,
+    specificUserInDb,
+    reloadUsersDb,
+    loginUser
+}
