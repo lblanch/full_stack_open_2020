@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react'
 import Blog from './components/Blog'
 import LoginForm from './components/LoginForm'
 import BlogForm from './components/BlogForm'
+import Notification from './components/Notification'
 
 import blogService from './services/blogs'
 import loginService from './services/login'
@@ -15,6 +16,8 @@ const App = () => {
     const [title, setTitle] = useState('')
     const [author, setAuthor] = useState('')
     const [url, setUrl] = useState('')
+    const [notificationMessage, setNotificationMessage] = useState('')
+    const [notificationType, setNotificationType] = useState('')
 
     //UseEffect cannot directly receive an async func. In future, suspense should be used
     //(suspense is an experimental feature still)
@@ -38,11 +41,19 @@ const App = () => {
         }
     }, [])
 
+    const showMessage = (message, type = 'info') => {
+        setNotificationType(type)
+        setNotificationMessage(message)
+        setTimeout(() => setNotificationMessage(''), 5000)
+    }
+
     const errorHandler = (error) => {
-        if (error.response) {
+        if (error.response.data.error) {
             console.log('Error: ', error.response.data.error)
+            showMessage(`Error: ${error.response.data.error}`, 'error')
         } else {
             console.log('Error: ', error.message)
+            showMessage(`Error: ${error.message}`, 'error')
         }
     }
 
@@ -63,6 +74,7 @@ const App = () => {
             setTitle('')
             setAuthor('')
             setUrl('')
+            showMessage(`Blog "${newBlog.title}" by ${newBlog.author} has been added!`)
         } catch (exception) {
             errorHandler(exception)
         }
@@ -78,6 +90,7 @@ const App = () => {
             setUser(response)
             setUsername('')
             setPassword('')
+            showMessage(`User "${response.name}" has logged in!`)
         } catch (exception) {
             errorHandler(exception)
         }
@@ -86,12 +99,14 @@ const App = () => {
     const handleLogout = (event) => {
         window.localStorage.removeItem('loggedBloglistUser')
         blogService.setToken(null)
+        showMessage(`User "${user.name}" has logged out!`)
         setUser(null)
     }
 
     return (
         <div>
             <h1>blogs</h1>
+            <Notification message={notificationMessage} type={notificationType} />
             { user === null ?
                 <LoginForm handleLogin={handleLogin} 
                     username={username}
