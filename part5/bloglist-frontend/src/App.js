@@ -73,10 +73,19 @@ const App = () => {
         }
     }
 
-    const handleLike = async (blogId, likes) => {
+    const likeBlog = async (blogId, likes) => {
         try {
             const updatedBlog = await blogService.update(blogId, { likes })
             setBlogs(blogs.filter(b => b.id !== blogId).concat(updatedBlog))
+        } catch (exception) {
+            errorHandler(exception)
+        }
+    }
+
+    const deleteBlog = async (blogId) => {
+        try {
+            await blogService.deleteBlog(blogId)
+            setBlogs(blogs.filter(b => b.id !== blogId))
         } catch (exception) {
             errorHandler(exception)
         }
@@ -114,7 +123,7 @@ const App = () => {
                         <BlogForm createBlog={createBlog} />
                     </Togglable>
                     <br />
-                    <BlogList blogs={sortedBlogs} likeBlog={handleLike} />
+                    <BlogList blogs={sortedBlogs} likeBlog={likeBlog} deleteBlog={deleteBlog} loggedUser={user.username} />
                 </div>
             }
         </div>
