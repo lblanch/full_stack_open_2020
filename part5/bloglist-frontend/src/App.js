@@ -1,12 +1,13 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
+
+import blogService from './services/blogs'
+import loginService from './services/login'
 
 import Blog from './components/Blog'
 import LoginForm from './components/LoginForm'
 import BlogForm from './components/BlogForm'
 import Notification from './components/Notification'
-
-import blogService from './services/blogs'
-import loginService from './services/login'
+import Togglable from './components/Togglable'
 
 const App = () => {
     const [blogs, setBlogs] = useState([])
@@ -19,6 +20,8 @@ const App = () => {
     const [notificationMessage, setNotificationMessage] = useState('')
     const [notificationType, setNotificationType] = useState('')
 
+    const blogFormRef = useRef()
+
     //UseEffect cannot directly receive an async func. In future, suspense should be used
     //(suspense is an experimental feature still)
     useEffect(() => {
@@ -27,7 +30,10 @@ const App = () => {
                 const response = await blogService.getAll()
                 setBlogs(response)
             } catch (exception) {
-                errorHandler(exception)
+                //should be the same as calling "errorHandler"
+                setNotificationType('error')
+                setNotificationMessage(exception.message)
+                setTimeout(() => setNotificationMessage(''), 5000)
             }
         }
         fetchBlogs()
@@ -62,6 +68,8 @@ const App = () => {
     const createBlog = async (event) => {
         event.preventDefault()
 
+        blogFormRef.current.toggleVisibility()
+        
         const newBlog = {
             title: title,
             author: author,
@@ -117,11 +125,13 @@ const App = () => {
                 <div>
                     <div>{user.name} is logged in <button type="button" onClick={handleLogout}>logout</button></div>
                     <br />
-                    <BlogForm createBlog={createBlog}
-                        title={title} handleTitle={(event) => handleChange(event.target.value, setTitle)}
-                        author={author} handleAuthor={(event) => handleChange(event.target.value, setAuthor)}
-                        url={url} handleUrl={(event) => handleChange(event.target.value, setUrl)}
-                    />
+                    <Togglable showLabel="new note" hideLabel="cancel" ref={blogFormRef}>
+                        <BlogForm createBlog={createBlog}
+                            title={title} handleTitle={(event) => handleChange(event.target.value, setTitle)}
+                            author={author} handleAuthor={(event) => handleChange(event.target.value, setAuthor)}
+                            url={url} handleUrl={(event) => handleChange(event.target.value, setUrl)}
+                        />
+                    </Togglable>
                     <br />
                     <h2>blog list</h2>
                     <div>{blogs.map(blog => <Blog key={blog.id} blog={blog} />)}</div>
