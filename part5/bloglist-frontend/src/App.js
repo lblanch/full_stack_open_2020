@@ -18,6 +18,8 @@ const App = () => {
 
     const blogFormRef = useRef()
 
+    const sortedBlogs = blogs.sort((a, b) => Number(b.likes) > Number(a.likes))
+
     //UseEffect cannot directly receive an async func. In future, suspense should be used
     //(suspense is an experimental feature still)
     useEffect(() => {
@@ -112,7 +114,7 @@ const App = () => {
                         <BlogForm createBlog={createBlog} />
                     </Togglable>
                     <br />
-                    <BlogList blogs={blogs} likeBlog={handleLike} />
+                    <BlogList blogs={sortedBlogs} likeBlog={handleLike} />
                 </div>
             }
         </div>
