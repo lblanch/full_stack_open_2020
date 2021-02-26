@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 
 import Togglable from './Togglable'
 
@@ -21,5 +22,12 @@ const Blog = ({ blog, likeBlog, deleteBlog, loggedUser }) => (
         </Togglable>
     </div>
 )
+
+Blog.propTypes = {
+    blog: PropTypes.object.isRequired,
+    likeBlog: PropTypes.func.isRequired,
+    deleteBlog: PropTypes.func.isRequired,
+    loggedUser: PropTypes.string.isRequired
+}
 
 export default Blog
