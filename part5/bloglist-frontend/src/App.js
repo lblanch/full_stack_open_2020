@@ -71,6 +71,15 @@ const App = () => {
         }
     }
 
+    const handleLike = async (blogId, likes) => {
+        try {
+            const updatedBlog = await blogService.update(blogId, { likes })
+            setBlogs(blogs.filter(b => b.id !== blogId).concat(updatedBlog))
+        } catch (exception) {
+            errorHandler(exception)
+        }
+    }
+
     const handleLogin = async (credentials) => {
         try {
             const response = await loginService.login(credentials)
@@ -103,7 +112,7 @@ const App = () => {
                         <BlogForm createBlog={createBlog} />
                     </Togglable>
                     <br />
-                    <BlogList blogs={blogs} />
+                    <BlogList blogs={blogs} likeBlog={handleLike} />
                 </div>
             }
         </div>
