@@ -8,15 +8,11 @@ import LoginForm from './components/LoginForm'
 import BlogForm from './components/BlogForm'
 import Notification from './components/Notification'
 import Togglable from './components/Togglable'
+import Logout from './components/Logout'
 
 const App = () => {
     const [blogs, setBlogs] = useState([])
-    const [username, setUsername] = useState('')
-    const [password, setPassword] = useState('')
     const [user, setUser] = useState(null)
-    const [title, setTitle] = useState('')
-    const [author, setAuthor] = useState('')
-    const [url, setUrl] = useState('')
     const [notificationMessage, setNotificationMessage] = useState('')
     const [notificationType, setNotificationType] = useState('')
 
@@ -63,41 +59,24 @@ const App = () => {
         }
     }
 
-    const handleChange = (value, changeFunction) => changeFunction(value)
-
-    const createBlog = async (event) => {
-        event.preventDefault()
-
+    const createBlog = async (newBlog) => {
         blogFormRef.current.toggleVisibility()
-        
-        const newBlog = {
-            title: title,
-            author: author,
-            url: url
-        }
 
         try {
             const response = await blogService.create(newBlog)
             setBlogs(blogs.concat(response))
-            setTitle('')
-            setAuthor('')
-            setUrl('')
             showMessage(`Blog "${newBlog.title}" by ${newBlog.author} has been added!`)
         } catch (exception) {
             errorHandler(exception)
         }
     }
 
-    const handleLogin = async (event) => {
-        event.preventDefault()
-
+    const handleLogin = async (credentials) => {
         try {
-            const response = await loginService.login({ username, password })
+            const response = await loginService.login(credentials)
             window.localStorage.setItem('loggedBloglistUser', JSON.stringify(response))
             blogService.setToken(response.token)
             setUser(response)
-            setUsername('')
-            setPassword('')
             showMessage(`User "${response.name}" has logged in!`)
         } catch (exception) {
             errorHandler(exception)
@@ -116,21 +95,12 @@ const App = () => {
             <h1>blogs</h1>
             <Notification message={notificationMessage} type={notificationType} />
             { user === null ?
-                <LoginForm handleLogin={handleLogin} 
-                    username={username}
-                    password={password}
-                    handlePassword={(event) => handleChange(event.target.value, setPassword)}
-                    handleUsername={(event) => handleChange(event.target.value, setUsername)}
-                /> :
+                <LoginForm handleLogin={handleLogin} /> :
                 <div>
-                    <div>{user.name} is logged in <button type="button" onClick={handleLogout}>logout</button></div>
+                    <Logout handleLogout={handleLogout} name={user.name} />
                     <br />
                     <Togglable showLabel="new note" hideLabel="cancel" ref={blogFormRef}>
-                        <BlogForm createBlog={createBlog}
-                            title={title} handleTitle={(event) => handleChange(event.target.value, setTitle)}
-                            author={author} handleAuthor={(event) => handleChange(event.target.value, setAuthor)}
-                            url={url} handleUrl={(event) => handleChange(event.target.value, setUrl)}
-                        />
+                        <BlogForm createBlog={createBlog} />
                     </Togglable>
                     <br />
                     <h2>blog list</h2>
