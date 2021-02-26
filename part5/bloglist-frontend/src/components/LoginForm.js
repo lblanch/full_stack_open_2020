@@ -1,4 +1,4 @@
-import React, { useState} from 'react'
+import React, { useState } from 'react'
 
 const LoginForm = ({ handleLogin }) => {
     const [username, setUsername] = useState('')
@@ -17,7 +17,7 @@ const LoginForm = ({ handleLogin }) => {
         <div>
             <h2>log in to application</h2>
             <form onSubmit={loginUser}>
-                <input 
+                <input
                     type="text" value={username} name="Username" placeholder="username"
                     onChange={(event) => setUsername(event.target.value)}
                 />

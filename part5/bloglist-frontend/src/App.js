@@ -103,7 +103,7 @@ const App = () => {
         }
     }
 
-    const handleLogout = (event) => {
+    const handleLogout = () => {
         window.localStorage.removeItem('loggedBloglistUser')
         blogService.setToken(null)
         showMessage(`User "${user.name}" has logged out!`)

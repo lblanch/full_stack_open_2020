@@ -4,11 +4,11 @@ import Togglable from './Togglable'
 
 const Blog = ({ blog, likeBlog, deleteBlog, loggedUser }) => (
     <div className="blog">
-        "{blog.title}" by {blog.author}
+        &quot;{blog.title}&quot; by {blog.author}
         <Togglable showLabel="view" hideLabel="hide">
             <p>{blog.url}</p>
             <p>
-                likes {blog.likes} 
+                likes {blog.likes}
                 <button type="button" onClick={() => likeBlog(blog.id, Number(blog.likes) + 1)}>
                     like
                 </button>
