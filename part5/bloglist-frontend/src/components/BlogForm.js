@@ -24,18 +24,18 @@ const BlogForm = ({ createBlog }) => {
     return (
         <div>
             <h2>create new</h2>
-            <form onSubmit={addBlog}>
+            <form aria-label="Create new blog" onSubmit={addBlog}>
                 <input
-                    type="text" value={title} name="Title" placeholder="title"
+                    type="text" value={title} aria-label="Title" placeholder="title"
                     onChange={(event) => setTitle(event.target.value)}
                 />
                 <br />
                 <input
-                    type="text" value={author} name="Author" placeholder="author"
+                    type="text" value={author} aria-label="Author" placeholder="author"
                     onChange={(event) => setAuthor(event.target.value)}
                 />
                 <br />
-                <input type="text" value={url} name="URL" placeholder="url"
+                <input type="text" value={url} aria-label="URL" placeholder="url"
                     onChange={(event) => setUrl(event.target.value)}
                 />
                 <button type="submit">create</button>
