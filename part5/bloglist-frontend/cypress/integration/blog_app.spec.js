@@ -38,4 +38,33 @@ describe('Blog app', function() {
             cy.get('form').should('be.visible')
         })
     })
+
+    describe('When logged in', function() {
+        const newBlog = {
+            title: "Title for a new test blog",
+            author: "Cypress McTest",
+            url: "www.cypress.wordpress.com"
+        }
+
+        beforeEach(function() {
+            cy.loginUser(rootUser.username, rootUser.password)
+        })
+
+        it('A blog can be created', function() {
+            cy.get('form').should('not.be.visible')
+
+            cy.get('button').contains('new note').click()
+            
+            cy.get('form').should('be.visible')
+            
+            cy.get('input[aria-label="Title"]').type(newBlog.title)
+            cy.get('input[aria-label="Author"]').type(newBlog.author)
+            cy.get('input[aria-label="URL"]').type(newBlog.url)
+            cy.get('button').contains('create').click()
+
+            cy.get('form').should('not.be.visible')
+
+            cy.get('.blog').contains(`"${newBlog.title}" by ${newBlog.author}`)
+        })
+    })
 })

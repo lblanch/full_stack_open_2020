@@ -27,3 +27,11 @@
 Cypress.Commands.add('insertUser', (user) => {
     cy.request('POST', '/api/users', user)
 })
+
+Cypress.Commands.add('loginUser', (username, password) => {
+    cy.request('POST', '/api/login', { username: username, password: password })
+        .then((request, response) => {
+            localStorage.setItem('loggedBloglistUser', JSON.stringify(request.body))
+            cy.reload()
+        })
+})
