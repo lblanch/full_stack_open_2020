@@ -40,25 +40,32 @@ describe('Blog app', function() {
     })
 
     describe('When logged in', function() {
-        const newBlog = {
-            title: "Title for a new test blog",
-            author: "Cypress McTest",
-            url: "www.cypress.wordpress.com",
-            likes: 5
-        }
-
-        const newBlog2 = {
-            title: "Another blog about testing tests",
-            author: "Test Cypress",
-            url: "www.cypress.wordpress.com",
-            likes: 2
-        }
-
-        const newBlog3 = {
-            title: "Title for a new test blog: part 2",
-            author: "Cypress McTest",
-            url: "www.cypress.wordpress.com"
-        }
+        const newBlogs = [
+            {
+                title: "Title for a new test blog",
+                author: "Cypress McTest",
+                url: "www.cypress.wordpress.com",
+                likes: 5
+            },
+            {
+                title: "Another blog about testing tests",
+                author: "Test Cypress",
+                url: "www.myblog.com/mypost",
+                likes: 22
+            },
+            {
+                title: "Title for a new test blog: part 2",
+                author: "Cypress McTest",
+                url: "www.cypress.wordpress.com/part2",
+                likes: 0
+            },
+            {
+                title: "Teh comeback blog, attention!",
+                author: "Test Cypress",
+                url: "www.myblog.com/myotherpost",
+                likes: 12
+            }
+        ]
 
         beforeEach(function() {
             cy.loginUser(rootUser.username, rootUser.password)
@@ -71,36 +78,36 @@ describe('Blog app', function() {
             
             cy.get('form').should('be.visible')
             
-            cy.get('input[aria-label="Title"]').type(newBlog.title)
-            cy.get('input[aria-label="Author"]').type(newBlog.author)
-            cy.get('input[aria-label="URL"]').type(newBlog.url)
+            cy.get('input[aria-label="Title"]').type(newBlogs[0].title)
+            cy.get('input[aria-label="Author"]').type(newBlogs[0].author)
+            cy.get('input[aria-label="URL"]').type(newBlogs[0].url)
             cy.get('button').contains('create').click()
 
             cy.get('form').should('not.be.visible')
 
-            cy.get('.blog').contains(`"${newBlog.title}" by ${newBlog.author}`)
+            cy.get('.blog').contains(`"${newBlogs[0].title}" by ${newBlogs[0].author}`)
         })
 
         describe('Several blogs have been created', function() {
             beforeEach(function() {
-                cy.createBlog(newBlog)
-                cy.createBlog(newBlog2)
-                cy.createBlog(newBlog3)
+                for (let blog of newBlogs) {
+                    cy.createBlog(blog)
+                }
             })
 
             it('A logged in user can like a blog', function() {
                 cy.get('.blog')
-                    .contains(`"${newBlog2.title}" by ${newBlog2.author}`)
+                    .contains(`"${newBlogs[1].title}" by ${newBlogs[1].author}`)
                     .as('myBlog')
                     .contains('view')
                     .click()
                 cy.get('@myBlog').contains('like').click()
-                cy.get('@myBlog').contains(`likes ${newBlog2.likes + 1}`)
+                cy.get('@myBlog').contains(`likes ${newBlogs[1].likes + 1}`)
             })
 
             it('A logged in user can delete their own blog', function() {
                 cy.get('.blog')
-                    .contains(`"${newBlog2.title}" by ${newBlog2.author}`)
+                    .contains(`"${newBlogs[1].title}" by ${newBlogs[1].author}`)
                     .as('myBlog')
                     .contains('view')
                     .click()
@@ -118,6 +125,14 @@ describe('Blog app', function() {
                 cy.loginUser(alternativeUser.username, alternativeUser.password)
 
                 cy.get('button').contains('remove').should('not.exist')
+            })
+
+            it('Blogs are ordered accoding their amount of likes', function() {
+                cy.get('.blog').should(($blogArray) => {
+                    const sortedNewBlogs = newBlogs.sort((a, b) => Number(b.likes) > Number(a.likes)).map(b => `"${b.title}" by ${b.author}`)
+                    const blogsText = $blogArray.toArray().map(el => el.innerText.substr(0, el.innerText.length - 5))
+                    expect(blogsText).to.deep.eq(sortedNewBlogs)
+                })
             })
         })
     })
