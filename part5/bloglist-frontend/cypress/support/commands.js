@@ -35,3 +35,15 @@ Cypress.Commands.add('loginUser', (username, password) => {
             cy.reload()
         })
 })
+
+Cypress.Commands.add('createBlog', (newBlog) => {
+    cy.request({
+        url: '/api/blogs',
+        method: 'POST',
+        body: newBlog,
+        headers: {
+            'Authorization': `bearer ${JSON.parse(localStorage.getItem('loggedBloglistUser')).token}`
+        }
+    })
+    cy.reload()
+})

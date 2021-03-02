@@ -43,6 +43,20 @@ describe('Blog app', function() {
         const newBlog = {
             title: "Title for a new test blog",
             author: "Cypress McTest",
+            url: "www.cypress.wordpress.com",
+            likes: 5
+        }
+
+        const newBlog2 = {
+            title: "Another blog about testing tests",
+            author: "Test Cypress",
+            url: "www.cypress.wordpress.com",
+            likes: 2
+        }
+
+        const newBlog3 = {
+            title: "Title for a new test blog: part 2",
+            author: "Cypress McTest",
             url: "www.cypress.wordpress.com"
         }
 
@@ -65,6 +79,24 @@ describe('Blog app', function() {
             cy.get('form').should('not.be.visible')
 
             cy.get('.blog').contains(`"${newBlog.title}" by ${newBlog.author}`)
+        })
+
+        describe('Several blogs have been created', function() {
+            beforeEach(function() {
+                cy.createBlog(newBlog)
+                cy.createBlog(newBlog2)
+                cy.createBlog(newBlog3)
+            })
+
+            it('A logged in user can like a blog', function() {
+                cy.get('.blog')
+                    .contains(`"${newBlog2.title}" by ${newBlog2.author}`)
+                    .as('myBlog')
+                    .contains('view')
+                    .click()
+                cy.get('@myBlog').contains('like').click()
+                cy.get('@myBlog').contains(`likes ${newBlog2.likes + 1}`)
+            })
         })
     })
 })
