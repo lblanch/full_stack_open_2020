@@ -97,6 +97,28 @@ describe('Blog app', function() {
                 cy.get('@myBlog').contains('like').click()
                 cy.get('@myBlog').contains(`likes ${newBlog2.likes + 1}`)
             })
+
+            it('A logged in user can delete their own blog', function() {
+                cy.get('.blog')
+                    .contains(`"${newBlog2.title}" by ${newBlog2.author}`)
+                    .as('myBlog')
+                    .contains('view')
+                    .click()
+                cy.get('@myBlog').contains('remove').click()
+                cy.get('@myBlog').should('not.exist')
+            })
+
+            it('A logged in user cannot delete other user\'s blogs', function() {
+                const alternativeUser = {
+                    username: 'another',
+                    name: 'Another User',
+                    password: '654321'
+                }
+                cy.insertUser(alternativeUser)
+                cy.loginUser(alternativeUser.username, alternativeUser.password)
+
+                cy.get('button').contains('remove').should('not.exist')
+            })
         })
     })
 })
