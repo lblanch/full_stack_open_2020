@@ -18,7 +18,13 @@ const Anecdote = ({ anecdote, handleVote }) => (
 
 const AnecdoteList = () => {
   const dispatch = useDispatch()
-  const anecdotes = useSelector(state => state.anecdotes.sort((a, b) => b.votes > a.votes))
+  const anecdotes = useSelector(state => {
+    if (state.filter.length > 0) {
+      const regexFilter = new RegExp(state.filter,"i")
+      return state.anecdotes.filter(a => a.content.match(regexFilter)).sort((a, b) => b.votes > a.votes)
+    }
+    return state.anecdotes.sort((a, b) => b.votes > a.votes)
+  })
 
   const vote = (id, content) => {
     dispatch(actionVote(id))
