@@ -5,6 +5,7 @@ import AnecdoteList from './components/AnecdoteList'
 
 const App = () => (
   <div>
+    <h1>Anecdotes</h1>
     <AnecdoteList />
     <AnecdoteForm />
   </div>
