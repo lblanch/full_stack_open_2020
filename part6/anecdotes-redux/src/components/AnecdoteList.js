@@ -26,16 +26,16 @@ const AnecdoteList = () => {
     return state.anecdotes.sort((a, b) => b.votes > a.votes)
   })
 
-  const vote = (id, content) => {
-    dispatch(actionVote(id))
-    dispatch(actionShowNotification(`you voted "${content}"`))
+  const vote = (anecdote) => {
+    dispatch(actionVote(anecdote))
+    dispatch(actionShowNotification(`you voted "${anecdote.content}"`))
     setTimeout(() => dispatch(actionHideNotification()), 5000)
   }
 
   return (
     <div>
       {anecdotes.map(anecdote => (
-        <Anecdote key={anecdote.id} anecdote={anecdote} handleVote={() => vote(anecdote.id, anecdote.content)} />
+        <Anecdote key={anecdote.id} anecdote={anecdote} handleVote={() => vote(anecdote)} />
       ))}
     </div>
   )
