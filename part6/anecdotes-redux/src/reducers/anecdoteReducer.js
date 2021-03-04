@@ -19,14 +19,6 @@ export const actionVote = (id) => ({ type: 'VOTE', data: { id: id }})
 
 export const actionInitAnecdotes = (anecdotes) => ({ type: 'INIT_ANECDOTES', data: anecdotes })
 
-export const actionAddAnecdote = (content) => (
-  { 
-    type: 'ADD_ANECDOTE', 
-    data: {
-      content: content,
-      votes: 0,
-    }
-  }
-)
+export const actionAddAnecdote = (anecdote) => ({ type: 'ADD_ANECDOTE', data: anecdote })
 
 export default anecdoteReducer
