@@ -1,15 +1,14 @@
-let counter = 0
+let timeoutId
 
 const notificationReducer = (state = '', action) => {
   switch (action.type) {
     case 'SHOW': {
-      counter++
-      return action.data
+      clearTimeout(timeoutId)
+      timeoutId = action.data.timeoutId
+      return action.data.message
     } 
-    case 'HIDE': {
-      counter --
-      return counter === 0 ? '' : state
-    }
+    case 'HIDE':
+      return ''
     default:
       return state
   }
@@ -20,8 +19,8 @@ export const actionHideNotification = () => ({ type: 'HIDE'})
 
 export const actionSetNotification = (message, seconds) => {
   return async (dispatch) => {
-    dispatch({ type: 'SHOW', data: message})
-    setTimeout(() => dispatch({ type: 'HIDE'}), seconds * 1000)
+    const timeoutId = setTimeout(() => dispatch({ type: 'HIDE'}), seconds * 1000)
+    dispatch({ type: 'SHOW', data: { message: message, timeoutId: timeoutId}})
   }
 } 
 
