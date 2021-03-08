@@ -78,14 +78,21 @@ const CreateNew = (props) => {
   const author = useField('author')
   const info = useField('info')
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
+  const handleSubmit = (event) => {
+    event.preventDefault()
+    console.log(event.submitter)
     props.addNew({
       content: content.value,
       author: author.value,
       info: info.value,
       votes: 0
     })
+  }
+
+  const reset = () => {
+    content.reset()
+    author.reset()
+    info.reset()
   }
 
   return (
@@ -104,7 +111,8 @@ const CreateNew = (props) => {
           url for more info
           <input {...info} />
         </div>
-        <button>create</button>
+        <button type="submit">create</button>
+        <button type="button" onClick={reset}>reset</button>
       </form>
     </div>
   )
