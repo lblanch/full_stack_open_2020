@@ -1,4 +1,3 @@
-  
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 
@@ -10,20 +9,31 @@ const useField = (type) => {
     setValue(event.target.value)
   }
 
+  const reset = () => setValue('')
+
   return {
     type,
     value,
-    onChange
+    onChange,
+    reset
   }
 }
 
 const useResource = (baseUrl) => {
   const [resources, setResources] = useState([])
 
-  // ...
+  useEffect(() => {
+    axios.get(baseUrl)
+      .then(response => {
+        setResources(response.data)
+      })
+      .catch(error => console.log(error))
+  }, [baseUrl])
 
   const create = (resource) => {
-    // ...
+    axios.post(baseUrl, resource)
+      .then(response => setResources(resources.concat(response.data)))
+      .catch(error => console.log(error))
   }
 
   const service = {
@@ -36,9 +46,9 @@ const useResource = (baseUrl) => {
 }
 
 const App = () => {
-  const content = useField('text')
-  const name = useField('text')
-  const number = useField('text')
+  const { reset: contentReset, ...content } = useField('text')
+  const { reset: nameReset, ...name } = useField('text')
+  const { reset: numberReset, ...number } = useField('text')
 
   const [notes, noteService] = useResource('http://localhost:3005/notes')
   const [persons, personService] = useResource('http://localhost:3005/persons')
@@ -46,11 +56,14 @@ const App = () => {
   const handleNoteSubmit = (event) => {
     event.preventDefault()
     noteService.create({ content: content.value })
+    contentReset()
   }
  
   const handlePersonSubmit = (event) => {
     event.preventDefault()
     personService.create({ name: name.value, number: number.value})
+    nameReset()
+    numberReset()
   }
 
   return (
