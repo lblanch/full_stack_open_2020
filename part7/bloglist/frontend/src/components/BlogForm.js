@@ -2,7 +2,7 @@ import React from 'react'
 import { useDispatch } from 'react-redux'
 import { actionAddBlog } from '../reducers/blogReducer'
 
-const BlogForm = () => {
+const BlogForm = ({ parentRef }) => {
     const dispatch = useDispatch()
 
     const addBlog = (event) => {
@@ -18,6 +18,7 @@ const BlogForm = () => {
         event.target.url.value = ''
 
         dispatch(actionAddBlog(newBlog))
+        parentRef.current.toggleVisibility()
     }
 
     return (

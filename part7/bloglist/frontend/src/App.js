@@ -15,9 +15,6 @@ const App = () => {
     const dispatch = useDispatch()
     const user = useSelector(state => state.user)
 
-    const state = useSelector(state => state)
-    console.log(state)
-
     const blogFormRef = useRef()
 
     useEffect(() => {
@@ -27,28 +24,6 @@ const App = () => {
     useEffect(() => {
         dispatch(actionLoginFromStorage())
     }, [])
-
-    /*const createBlog = async (newBlog) => {
-        blogFormRef.current.toggleVisibility()
-    }*/
-
-    /*const likeBlog = async (blogId, likes) => {
-        try {
-            const updatedBlog = await blogService.update(blogId, { likes })
-            setBlogs(blogs.filter(b => b.id !== blogId).concat(updatedBlog))
-        } catch (exception) {
-            errorHandler(exception)
-        }
-    }
-
-    const deleteBlog = async (blogId) => {
-        try {
-            await blogService.deleteBlog(blogId)
-            setBlogs(blogs.filter(b => b.id !== blogId))
-        } catch (exception) {
-            errorHandler(exception)
-        }
-    }*/
 
     return (
         <div>
@@ -61,7 +36,7 @@ const App = () => {
                     <Logout />
                     <br />
                     <Togglable showLabel="new note" hideLabel="cancel" ref={blogFormRef}>
-                        <BlogForm />
+                        <BlogForm parentRef={blogFormRef} />
                     </Togglable>
                     <br />
                     <BlogList />
