@@ -8,9 +8,9 @@ const blogReducer = (state = [], action) => {
     case 'ADD_BLOG':
         return [...state, action.data]
     case 'REMOVE_BLOG':
-        return state
+        return state.filter(b => b.id !== action.data)
     case 'LIKE_BLOG':
-        return state
+        return state.map(b => b.id === action.data.id ? action.data : b).sort((a, b) => Number(b.likes) > Number(a.likes))
     default:
         return state
     }
@@ -33,6 +33,28 @@ export const actionAddBlog = (newBlog) => {
             const createdBlog = await blogService.create(newBlog)
             dispatch({ type: 'ADD_BLOG', data: createdBlog })
             dispatch(actionShowInfoNotification(`Blog "${newBlog.title}" by ${newBlog.author} has been added!`))
+        } catch (exception) {
+            dispatch(actionShowErrorNotification(exception))
+        }
+    }
+}
+
+export const actionRemoveBlog = (id) => {
+    return async dispatch => {
+        try {
+            await blogService.deleteBlog(id)
+            dispatch({ type: 'REMOVE_BLOG', data: id })
+        } catch (exception) {
+            dispatch(actionShowErrorNotification(exception))
+        }
+    }
+}
+
+export const actionLikeBlog = (id, likes) => {
+    return async dispatch => {
+        try {
+            const updatedBlog = await blogService.update(id, { likes })
+            dispatch({ type: 'LIKE_BLOG', data: updatedBlog })
         } catch (exception) {
             dispatch(actionShowErrorNotification(exception))
         }

@@ -1,17 +1,19 @@
 import React from 'react'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
+import { actionLikeBlog, actionRemoveBlog } from '../reducers/blogReducer'
 
 import Blog from './Blog'
 
 const BlogList = () => {
+    const dispatch = useDispatch()
     const { blogs, username } = useSelector(state => ({ blogs: state.blogs, username: state.user.username }))
 
-    const likeBlog = () => {
-        console.log('likeBlog')
+    const likeBlog = (id, likes) => {
+        dispatch(actionLikeBlog(id, likes))
     }
 
-    const deleteBlog = () => {
-        console.log('deleteBlog')
+    const deleteBlog = (id) => {
+        dispatch(actionRemoveBlog(id))
     }
 
     return (
