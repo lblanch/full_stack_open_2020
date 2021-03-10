@@ -1,16 +1,22 @@
 import React from 'react'
-import PropTypes from 'prop-types'
+import { useDispatch, useSelector } from 'react-redux'
 
-const Logout = ({ handleLogout, name }) => (
-    <div>
-        {name} is logged in
-        <button type="button" onClick={handleLogout}>logout</button>
-    </div>
-)
+import { actionLogout } from '../reducers/userReducer'
 
-Logout.propTypes = {
-    handleLogout: PropTypes.func.isRequired,
-    name: PropTypes.string.isRequired
+const Logout = () => {
+    const dispatch = useDispatch()
+    const name = useSelector(state => state.user.name)
+
+    const handleLogout = () => {
+        dispatch(actionLogout())
+    }
+
+    return (
+        <div>
+            {name} is logged in
+            <button type="button" onClick={handleLogout}>logout</button>
+        </div>
+    )
 }
 
 export default Logout

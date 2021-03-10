@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 
 import blogService from './services/blogs'
-import loginService from './services/login'
+
+import { actionLoginFromStorage } from './reducers/userReducer'
 
 import LoginForm from './components/LoginForm'
 import BlogForm from './components/BlogForm'
@@ -9,19 +11,17 @@ import Notification from './components/Notification'
 import Togglable from './components/Togglable'
 import Logout from './components/Logout'
 import BlogList from './components/BlogList'
+import { actionShowErrorNotification } from './reducers/notificationReducer'
 
 const App = () => {
+    const dispatch = useDispatch()
+    const user = useSelector(state => state.user)
     const [blogs, setBlogs] = useState([])
-    const [user, setUser] = useState(null)
-    const [notificationMessage, setNotificationMessage] = useState('')
-    const [notificationType, setNotificationType] = useState('')
 
     const blogFormRef = useRef()
 
     const sortedBlogs = blogs.sort((a, b) => Number(b.likes) > Number(a.likes))
 
-    //UseEffect cannot directly receive an async func. In future, suspense should be used
-    //(suspense is an experimental feature still)
     useEffect(() => {
         const fetchBlogs = async () => {
             try {
@@ -29,36 +29,22 @@ const App = () => {
                 setBlogs(response)
             } catch (exception) {
                 //should be the same as calling "errorHandler"
-                setNotificationType('error')
-                setNotificationMessage(exception.message)
-                setTimeout(() => setNotificationMessage(''), 5000)
+                dispatch(actionShowErrorNotification(exception))
             }
         }
         fetchBlogs()
     }, [])
 
     useEffect(() => {
-        const user = window.localStorage.getItem('loggedBloglistUser')
-        if (user) {
-            blogService.setToken(JSON.parse(user).token)
-            setUser(JSON.parse(user))
-        }
+        dispatch(actionLoginFromStorage())
     }, [])
 
-    const showMessage = (message, type = 'info') => {
-        setNotificationType(type)
-        setNotificationMessage(message)
-        setTimeout(() => setNotificationMessage(''), 5000)
+    const showMessage = (message) => {
+        console.log('INFO!!!!!', message)
     }
 
     const errorHandler = (error) => {
-        if (error.response.data.error) {
-            console.log('Error: ', error.response.data.error)
-            showMessage(`Error: ${error.response.data.error}`, 'error')
-        } else {
-            console.log('Error: ', error.message)
-            showMessage(`Error: ${error.message}`, 'error')
-        }
+        console.log('ERROR!!!!!!', error)
     }
 
     const createBlog = async (newBlog) => {
@@ -91,33 +77,15 @@ const App = () => {
         }
     }
 
-    const handleLogin = async (credentials) => {
-        try {
-            const response = await loginService.login(credentials)
-            window.localStorage.setItem('loggedBloglistUser', JSON.stringify(response))
-            blogService.setToken(response.token)
-            setUser(response)
-            showMessage(`User "${response.name}" has logged in!`)
-        } catch (exception) {
-            errorHandler(exception)
-        }
-    }
-
-    const handleLogout = () => {
-        window.localStorage.removeItem('loggedBloglistUser')
-        blogService.setToken(null)
-        showMessage(`User "${user.name}" has logged out!`)
-        setUser(null)
-    }
-
     return (
         <div>
             <h1>blogs</h1>
-            <Notification message={notificationMessage} type={notificationType} />
-            { user === null ?
-                <LoginForm handleLogin={handleLogin} /> :
+            <Notification />
+            { user === null
+                ? <LoginForm />
+                :
                 <div>
-                    <Logout handleLogout={handleLogout} name={user.name} />
+                    <Logout />
                     <br />
                     <Togglable showLabel="new note" hideLabel="cancel" ref={blogFormRef}>
                         <BlogForm createBlog={createBlog} />
