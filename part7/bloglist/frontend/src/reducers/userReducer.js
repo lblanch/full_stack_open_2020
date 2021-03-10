@@ -13,8 +13,11 @@ const userReducer = (state = null, action) => {
     case 'LOAD_FROM_STORAGE': {
         const localUser = window.localStorage.getItem('loggedBloglistUser')
         if (localUser) {
-            return JSON.parse(localUser).user
+            const parsedUser = JSON.parse(localUser)
+            blogService.setToken(parsedUser.token)
+            return parsedUser
         } else {
+            blogService.setToken(null)
             return null
         }
     }

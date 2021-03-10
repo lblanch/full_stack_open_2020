@@ -1,51 +1,38 @@
-import React, { useState } from 'react'
-import PropTypes from 'prop-types'
+import React from 'react'
+import { useDispatch } from 'react-redux'
+import { actionAddBlog } from '../reducers/blogReducer'
 
-const BlogForm = ({ createBlog }) => {
-    const [title, setTitle] = useState('')
-    const [author, setAuthor] = useState('')
-    const [url, setUrl] = useState('')
+const BlogForm = () => {
+    const dispatch = useDispatch()
 
-    const addBlog = async (event) => {
+    const addBlog = (event) => {
         event.preventDefault()
 
         const newBlog = {
-            title: title,
-            author: author,
-            url: url
+            title: event.target.title.value,
+            author: event.target.author.value,
+            url: event.target.url.value
         }
+        event.target.title.value = ''
+        event.target.author.value = ''
+        event.target.url.value = ''
 
-        setTitle('')
-        setAuthor('')
-        setUrl('')
-        await createBlog(newBlog)
+        dispatch(actionAddBlog(newBlog))
     }
 
     return (
         <div>
             <h2>create new</h2>
             <form aria-label="Create new blog" onSubmit={addBlog}>
-                <input
-                    type="text" value={title} aria-label="Title" placeholder="title"
-                    onChange={(event) => setTitle(event.target.value)}
-                />
+                <input type="text" name="title" aria-label="Title" placeholder="title" />
                 <br />
-                <input
-                    type="text" value={author} aria-label="Author" placeholder="author"
-                    onChange={(event) => setAuthor(event.target.value)}
-                />
+                <input type="text" name="author" aria-label="Author" placeholder="author" />
                 <br />
-                <input type="text" value={url} aria-label="URL" placeholder="url"
-                    onChange={(event) => setUrl(event.target.value)}
-                />
+                <input type="text" name="url" aria-label="URL" placeholder="url" />
                 <button type="submit">create</button>
             </form>
         </div>
     )
-}
-
-BlogForm.propTypes = {
-    createBlog: PropTypes.func.isRequired
 }
 
 export default BlogForm
