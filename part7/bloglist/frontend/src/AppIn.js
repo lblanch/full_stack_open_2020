@@ -10,18 +10,24 @@ import Notification from './components/Notification'
 import Togglable from './components/Togglable'
 import Logout from './components/Logout'
 import BlogList from './components/BlogList'
+import Blog from './components/Blog'
 import UserList from './components/UserList'
 import User from './components/User'
 
 const AppIn = () => {
     const dispatch = useDispatch()
     const users = useSelector(state => state.users)
-    const blogAmount = useSelector(state => state.blogs.length)
+    const blogs = useSelector(state => state.blogs)
     const blogFormRef = useRef()
 
-    const match = useRouteMatch('/users/:id')
-    const userParam = match
-        ? users.find(u => u.id.toString() === match.params.id)
+    const userMatch = useRouteMatch('/users/:id')
+    const userParam = userMatch
+        ? users.find(u => u.id.toString() === userMatch.params.id)
+        : null
+
+    const blogMatch = useRouteMatch('/blogs/:id')
+    const blogParam = blogMatch
+        ? blogs.find(b => b.id.toString() === blogMatch.params.id)
         : null
 
     useEffect(() => {
@@ -30,7 +36,7 @@ const AppIn = () => {
 
     useEffect(() => {
         dispatch(actionInitUsers())
-    }, [blogAmount])
+    }, [blogs.length])
 
     return (
         <div>
@@ -46,6 +52,9 @@ const AppIn = () => {
                 <Switch>
                     <Route path="/login">
                         <Redirect to="/" />
+                    </Route>
+                    <Route path="/blogs/:id">
+                        <Blog blog={blogParam} />
                     </Route>
                     <Route path="/users/:id">
                         <User user={userParam} />

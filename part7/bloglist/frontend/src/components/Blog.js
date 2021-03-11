@@ -1,33 +1,40 @@
 import React from 'react'
-import PropTypes from 'prop-types'
+import { useDispatch, useSelector } from 'react-redux'
+import { useHistory } from 'react-router-dom'
 
-import Togglable from './Togglable'
+import { actionLikeBlog, actionRemoveBlog } from '../reducers/blogReducer'
 
-const Blog = ({ blog, likeBlog, deleteBlog, loggedUser }) => (
-    <div className="blog">
-        &quot;{blog.title}&quot; by {blog.author}
-        <Togglable showLabel="view" hideLabel="hide">
-            <p>{blog.url}</p>
+const Blog = ({ blog }) => {
+    const history = useHistory()
+    const dispatch = useDispatch()
+    const username = useSelector(state => state.user.username)
+
+    const likeBlog = (id, likes) => {
+        dispatch(actionLikeBlog(id, likes))
+    }
+
+    const deleteBlog = (id) => {
+        dispatch(actionRemoveBlog(id))
+        history.push('/')
+    }
+
+    return (
+        <div>
+            <h2>&quot;{blog.title}&quot;</h2> by {blog.author}
+            <p><a href={blog.url} target="_blank" rel="noopener noreferrer">{blog.url}</a></p>
             <p>
-                likes {blog.likes}
+                {blog.likes} likes
                 <button type="button" onClick={() => likeBlog(blog.id, Number(blog.likes) + 1)}>
                     like
                 </button>
             </p>
-            <p>{blog.user.name}</p>
+            <p>Added by {blog.user.name}</p>
             {
-                blog.user.username === loggedUser &&
+                blog.user.username === username &&
                 <button type="button" onClick={() => deleteBlog(blog.id)}>remove</button>
             }
-        </Togglable>
-    </div>
-)
-
-Blog.propTypes = {
-    blog: PropTypes.object.isRequired,
-    likeBlog: PropTypes.func.isRequired,
-    deleteBlog: PropTypes.func.isRequired,
-    loggedUser: PropTypes.string.isRequired
+        </div>
+    )
 }
 
 export default Blog
