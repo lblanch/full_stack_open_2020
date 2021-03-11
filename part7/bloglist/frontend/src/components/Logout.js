@@ -12,10 +12,10 @@ const Logout = () => {
     }
 
     return (
-        <div>
+        <span>
             {name} is logged in
             <button type="button" onClick={handleLogout}>logout</button>
-        </div>
+        </span>
     )
 }
 

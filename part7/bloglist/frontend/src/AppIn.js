@@ -43,12 +43,11 @@ const AppIn = () => {
             <div>
                 <Link style={{ padding: 5 }} to ="/">home</Link>
                 <Link style={{ padding: 5 }} to ="/users">users</Link>
+                <Logout />
             </div>
-            <h1>blogs</h1>
+            <h1>blog app</h1>
             <Notification />
             <div>
-                <Logout />
-                <br />
                 <Switch>
                     <Route path="/login">
                         <Redirect to="/" />

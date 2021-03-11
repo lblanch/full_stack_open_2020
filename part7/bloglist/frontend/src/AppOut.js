@@ -9,7 +9,7 @@ const AppOut = () => {
         <div>
             <Switch>
                 <Route path="/login">
-                    <h1>blogs</h1>
+                    <h1>blog app</h1>
                     <Notification />
                     <LoginForm />
                 </Route>
