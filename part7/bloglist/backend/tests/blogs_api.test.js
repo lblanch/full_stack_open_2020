@@ -266,7 +266,6 @@ describe('DELETE', () => {
     })
 })
 
-//TODO: update tests to take into account authorization
 describe('PUT', () => {
     beforeEach(async () => {
         blogUser = await userHelper.reloadUsersDb()

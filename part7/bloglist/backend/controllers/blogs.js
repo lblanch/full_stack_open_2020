@@ -60,7 +60,6 @@ blogsRouter.delete('/:id', async (request, response) => {
     response.status(204).end()
 })
 
-//TODO: update below so blogs can only be updated by the user that created them (needs token)
 blogsRouter.put('/:id', async (request, response) => {
     const updatedBlog = await Blog
         .findByIdAndUpdate(request.params.id, request.body, { new: true, runValidators: true })
@@ -71,6 +70,20 @@ blogsRouter.put('/:id', async (request, response) => {
     } else {
         response.status(404).send({ error: 'not found' })
     }
+})
+
+blogsRouter.post('/:id/comments', async (request, response) => {
+    const blog = await Blog.findById(request.params.id)
+
+    if (!blog) {
+        return response.status(404).send({ error: 'not found' })
+    }
+
+    blog.comments = blog.comments.concat(request.body.comment)
+    let updatedBlog = await blog.save()
+    updatedBlog = await updatedBlog.populate('user', { username: 1, name: 1 }).execPopulate()
+
+    response.status(201).json(updatedBlog)
 })
 
 module.exports = blogsRouter
