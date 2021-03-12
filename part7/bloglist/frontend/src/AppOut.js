@@ -1,5 +1,7 @@
+import { Typography } from '@material-ui/core'
 import React from 'react'
 import { Redirect, Route, Switch } from 'react-router-dom'
+
 
 import LoginForm from './components/LoginForm'
 import Notification from './components/Notification'
@@ -9,7 +11,9 @@ const AppOut = () => {
         <div>
             <Switch>
                 <Route path="/login">
-                    <h1>blog app</h1>
+                    <Typography variant="h1" component="h2" gutterBottom>
+                        Blog App
+                    </Typography>
                     <Notification />
                     <LoginForm />
                 </Route>

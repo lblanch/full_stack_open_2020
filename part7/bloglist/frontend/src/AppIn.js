@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { Link, Switch, Route, useRouteMatch, Redirect } from 'react-router-dom'
+import { Switch, Route, useRouteMatch, Redirect } from 'react-router-dom'
+import Typography from '@material-ui/core/Typography'
 
 import { actionInitBlogs } from './reducers/blogReducer'
 import { actionInitUsers } from './reducers/usersReducer'
@@ -8,11 +9,11 @@ import { actionInitUsers } from './reducers/usersReducer'
 import BlogForm from './components/BlogForm'
 import Notification from './components/Notification'
 import Togglable from './components/Togglable'
-import Logout from './components/Logout'
 import BlogList from './components/BlogList'
 import Blog from './components/Blog'
 import UserList from './components/UserList'
 import User from './components/User'
+import NavigationBar from './components/NavigationBar'
 
 const AppIn = () => {
     const dispatch = useDispatch()
@@ -40,12 +41,10 @@ const AppIn = () => {
 
     return (
         <div>
-            <div>
-                <Link style={{ padding: 5 }} to ="/">home</Link>
-                <Link style={{ padding: 5 }} to ="/users">users</Link>
-                <Logout />
-            </div>
-            <h1>blog app</h1>
+            <NavigationBar />
+            <Typography variant="h1" gutterBottom>
+                Blog App
+            </Typography>
             <Notification />
             <div>
                 <Switch>

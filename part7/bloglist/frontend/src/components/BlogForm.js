@@ -1,3 +1,4 @@
+import { Button, TextField, Typography } from '@material-ui/core'
 import React from 'react'
 import { useDispatch } from 'react-redux'
 import { actionAddBlog } from '../reducers/blogReducer'
@@ -23,14 +24,12 @@ const BlogForm = ({ parentRef }) => {
 
     return (
         <div>
-            <h2>create new</h2>
+            <Typography variant="h4" gutterBottom>Create Blog</Typography>
             <form aria-label="Create new blog" onSubmit={addBlog}>
-                <input type="text" name="title" aria-label="Title" placeholder="title" />
-                <br />
-                <input type="text" name="author" aria-label="Author" placeholder="author" />
-                <br />
-                <input type="text" name="url" aria-label="URL" placeholder="url" />
-                <button type="submit">create</button>
+                <TextField fullWidth required name="title" aria-label="Title" label="Title" />
+                <TextField fullWidth required name="author" aria-label="Author" label="Author" />
+                <TextField fullWidth required name="url" aria-label="URL" label="URL" />
+                <Button type="submit">create</Button>
             </form>
         </div>
     )
