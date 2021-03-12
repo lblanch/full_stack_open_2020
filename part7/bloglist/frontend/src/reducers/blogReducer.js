@@ -1,4 +1,5 @@
 import blogService from '../services/blogs'
+import commentService from '../services/comments'
 import { actionShowErrorNotification, actionShowInfoNotification } from './notificationReducer'
 
 const blogReducer = (state = [], action) => {
@@ -9,7 +10,7 @@ const blogReducer = (state = [], action) => {
         return [...state, action.data]
     case 'REMOVE_BLOG':
         return state.filter(b => b.id !== action.data)
-    case 'LIKE_BLOG':
+    case 'UPDATE_BLOG':
         return state.map(b => b.id === action.data.id ? action.data : b).sort((a, b) => Number(b.likes) > Number(a.likes))
     default:
         return state
@@ -54,7 +55,18 @@ export const actionLikeBlog = (id, likes) => {
     return async dispatch => {
         try {
             const updatedBlog = await blogService.update(id, { likes })
-            dispatch({ type: 'LIKE_BLOG', data: updatedBlog })
+            dispatch({ type: 'UPDATE_BLOG', data: updatedBlog })
+        } catch (exception) {
+            dispatch(actionShowErrorNotification(exception))
+        }
+    }
+}
+
+export const actionCommentBlog = (id, comment) => {
+    return async dispatch => {
+        try {
+            const updatedBlog = await commentService.create(id, { comment })
+            dispatch({ type: 'UPDATE_BLOG', data: updatedBlog })
         } catch (exception) {
             dispatch(actionShowErrorNotification(exception))
         }

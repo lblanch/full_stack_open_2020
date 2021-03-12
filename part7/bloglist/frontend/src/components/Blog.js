@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { useHistory } from 'react-router-dom'
 
 import { actionLikeBlog, actionRemoveBlog } from '../reducers/blogReducer'
+import Comments from './Comments'
 
 const Blog = ({ blog }) => {
     const history = useHistory()
@@ -33,10 +34,7 @@ const Blog = ({ blog }) => {
                 blog.user.username === username &&
                 <button type="button" onClick={() => deleteBlog(blog.id)}>remove</button>
             }
-            <h3>comments</h3>
-            <ul>
-                {blog.comments.map(comment => <li key={comment}>{comment}</li>)}
-            </ul>
+            <Comments comments={blog.comments} id={blog.id} />
         </div>
     )
 }
