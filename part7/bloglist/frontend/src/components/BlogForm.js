@@ -1,9 +1,9 @@
-import { Button, TextField, Typography } from '@material-ui/core'
+import { Button, TextField, Typography, Box } from '@material-ui/core'
 import React from 'react'
 import { useDispatch } from 'react-redux'
 import { actionAddBlog } from '../reducers/blogReducer'
 
-const BlogForm = ({ parentRef }) => {
+const BlogForm = (props) => {
     const dispatch = useDispatch()
 
     const addBlog = (event) => {
@@ -19,7 +19,7 @@ const BlogForm = ({ parentRef }) => {
         event.target.url.value = ''
 
         dispatch(actionAddBlog(newBlog))
-        parentRef.current.toggleVisibility()
+        props.parentRef.current.toggleVisibility()
     }
 
     return (
@@ -29,7 +29,12 @@ const BlogForm = ({ parentRef }) => {
                 <TextField fullWidth required name="title" aria-label="Title" label="Title" />
                 <TextField fullWidth required name="author" aria-label="Author" label="Author" />
                 <TextField fullWidth required name="url" aria-label="URL" label="URL" />
-                <Button type="submit">create</Button>
+                <Box m={2} display='flex'>
+                    <Box flexGrow={1}>
+                        <Button type="submit" variant="contained" color="primary">create</Button>
+                    </Box>
+                    {props.cancelButton}
+                </Box>
             </form>
         </div>
     )
