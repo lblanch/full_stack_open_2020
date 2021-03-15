@@ -6,7 +6,11 @@ const initialBlogs = [
         title: 'React patterns',
         author: 'Michael Chan',
         url: 'https://reactpatterns.com/',
-        likes: 7
+        likes: 7,
+        comments: [
+            'first comment',
+            'second comment'
+        ]
     },
     {
         title: 'Go To Statement Considered Harmful',
@@ -69,7 +73,7 @@ const reloadBlogsDb = async (userId) => {
     }
     const user = await User.findById(userId)
     user.blogs = blogsForUser
-    await user.save()
+    return await user.save()
 }
 
 module.exports = { initialBlogs, blogsInDb, nonExistingId, specificBlogInDb, reloadBlogsDb }

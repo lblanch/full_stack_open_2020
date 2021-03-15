@@ -10,22 +10,23 @@ const api = supertest(app)
 
 let blogUser
 
+beforeEach(async () => {
+    blogUser = await userHelper.reloadUsersDb()
+    blogUser.user = await helper.reloadBlogsDb(blogUser.user._id)
+})
+
 afterAll(() => {
     mongoose.connection.close()
 })
 
 describe('GET', () => {
-    beforeAll(async () => {
-        blogUser = await userHelper.reloadUsersDb()
-        await helper.reloadBlogsDb(blogUser.user._id)
-    })
-
     test('fetch blogs from server', async () => {
         const receivedBlogs = await api.get('/api/blogs')
             .expect(200)
             .expect('Content-type', /application\/json/)
 
         expect(receivedBlogs.body.length).toBe(helper.initialBlogs.length)
+        expect(receivedBlogs.body.length).toBe(blogUser.user.blogs.length)
     })
 
     test('blog contains id property', async () => {
@@ -40,13 +41,8 @@ describe('GET', () => {
     })
 })
 
-describe('POST', () => {
+describe('POST blogs', () => {
     describe('Success', () => {
-        beforeEach(async () => {
-            blogUser = await userHelper.reloadUsersDb()
-            await helper.reloadBlogsDb(blogUser.user._id)
-        })
-
         test('new blog is saved to server correctly', async () => {
             const newBlog = {
                 title: 'A timing attack with CSS selectors and Javascript',
@@ -90,11 +86,6 @@ describe('POST', () => {
     })
 
     describe('Fail', () => {
-        beforeAll(async () => {
-            blogUser = await userHelper.reloadUsersDb()
-            await helper.reloadBlogsDb(blogUser.user._id)
-        })
-
         test('new blog with missing author returns status 400', async () => {
             const newBlog = {
                 title: 'A timing attack with CSS selectors and Javascript',
@@ -189,14 +180,8 @@ describe('POST', () => {
 
 describe('DELETE', () => {
     describe('Success', () => {
-        beforeEach(async () => {
-            blogUser = await userHelper.reloadUsersDb()
-            await helper.reloadBlogsDb(blogUser.user._id)
-        })
-
         test('Delete sucessful with a valid and existing id', async () => {
             const blogsAtBeginning = await helper.blogsInDb()
-            const userAtStart = await userHelper.specificUserInDb(blogUser.user._id)
             await api.delete(`/api/blogs/${blogsAtBeginning[0].id}`)
                 .set('Authorization', `bearer ${blogUser.token}`)
                 .expect(204)
@@ -205,16 +190,11 @@ describe('DELETE', () => {
             const userAtEnd = await userHelper.specificUserInDb(blogUser.user._id)
 
             expect(blogsAtEnd.length).toEqual(blogsAtBeginning.length - 1)
-            expect(userAtEnd.blogs).toHaveLength(userAtStart.blogs.length -1)
+            expect(userAtEnd.blogs).toHaveLength(blogUser.user.blogs.length - 1)
         })
     })
 
     describe('Fail', () => {
-        beforeAll(async () => {
-            blogUser = await userHelper.reloadUsersDb()
-            await helper.reloadBlogsDb(blogUser.user._id)
-        })
-
         test('with non existing id returns 404', async () => {
             const wrongId = await helper.nonExistingId()
 
@@ -267,106 +247,175 @@ describe('DELETE', () => {
 })
 
 describe('PUT', () => {
-    beforeEach(async () => {
-        blogUser = await userHelper.reloadUsersDb()
-        await helper.reloadBlogsDb(blogUser.user._id)
+    describe('Success', () => {
+        test('blog is updated to server correctly', async () => {
+            const existingBlogs = await helper.blogsInDb()
+            const updatedBlog = {
+                title: 'A timing attack with CSS selectors and Javascript',
+                author: 'Sigurd Kolltveit',
+                url: 'https://blog.sheddow.xyz/css-timing-attack/',
+                likes: 33
+            }
+
+            const returnedBlog = await api
+                .put(`/api/blogs/${existingBlogs[0].id}`)
+                .send(updatedBlog)
+                .expect(200)
+                .expect('Content-Type', /application\/json/)
+
+            expect(returnedBlog.body.title).not.toEqual(existingBlogs[0].title)
+            expect(returnedBlog.body.author).not.toEqual(existingBlogs[0].author)
+            expect(returnedBlog.body.url).not.toEqual(existingBlogs[0].url)
+            expect(returnedBlog.body.likes).not.toEqual(existingBlogs[0].likes)
+            expect(returnedBlog.body.title).toEqual(updatedBlog.title)
+            expect(returnedBlog.body.author).toEqual(updatedBlog.author)
+            expect(returnedBlog.body.url).toEqual(updatedBlog.url)
+            expect(returnedBlog.body.likes).toEqual(updatedBlog.likes.toString())
+        })
+
+        test('blog is partially updated to server correctly', async () => {
+            const existingBlogs = await helper.blogsInDb()
+            const updatedBlog = {
+                title: 'A timing attack with CSS selectors and Javascript',
+                author: 'Sigurd Kolltveit',
+            }
+
+            const returnedBlog = await api
+                .put(`/api/blogs/${existingBlogs[0].id}`)
+                .send(updatedBlog)
+                .expect(200)
+                .expect('Content-Type', /application\/json/)
+
+            expect(returnedBlog.body.title).not.toEqual(existingBlogs[0].title)
+            expect(returnedBlog.body.author).not.toEqual(existingBlogs[0].author)
+            expect(returnedBlog.body.title).toEqual(updatedBlog.title)
+            expect(returnedBlog.body.author).toEqual(updatedBlog.author)
+            expect(returnedBlog.body.url).toEqual(existingBlogs[0].url)
+            expect(returnedBlog.body.likes).toEqual(existingBlogs[0].likes)
+        })
     })
 
-    test('blog is updated to server correctly', async () => {
-        const existingBlogs = await helper.blogsInDb()
-        const updatedBlog = {
-            title: 'A timing attack with CSS selectors and Javascript',
-            author: 'Sigurd Kolltveit',
-            url: 'https://blog.sheddow.xyz/css-timing-attack/',
-            likes: 33
-        }
+    describe('Fail', () => {
+        test('invalid blog returns status 400', async () => {
+            const existingBlogs = await helper.blogsInDb()
+            const updatedBlog = {
+                title: '',
+                author: 'Sigurd Kolltveit',
+                url: 'https://blog.sheddow.xyz/css-timing-attack/'
+            }
 
-        const returnedBlog = await api
-            .put(`/api/blogs/${existingBlogs[0].id}`)
-            .send(updatedBlog)
-            .expect(200)
-            .expect('Content-Type', /application\/json/)
+            const error = await api
+                .put(`/api/blogs/${existingBlogs[0].id}`)
+                .send(updatedBlog)
+                .expect(400)
+                .expect('Content-Type', /application\/json/)
 
-        expect(returnedBlog.body.title).not.toEqual(existingBlogs[0].title)
-        expect(returnedBlog.body.author).not.toEqual(existingBlogs[0].author)
-        expect(returnedBlog.body.url).not.toEqual(existingBlogs[0].url)
-        expect(returnedBlog.body.likes).not.toEqual(existingBlogs[0].likes)
-        expect(returnedBlog.body.title).toEqual(updatedBlog.title)
-        expect(returnedBlog.body.author).toEqual(updatedBlog.author)
-        expect(returnedBlog.body.url).toEqual(updatedBlog.url)
-        expect(returnedBlog.body.likes).toEqual(updatedBlog.likes.toString())
+            expect(error.body).toHaveProperty('error')
+        })
+
+        test('non existing id returns status 404', async () => {
+            const wrongId = await helper.nonExistingId()
+            const updatedBlog = {
+                title: 'A timing attack with CSS selectors and Javascript',
+                author: 'Sigurd Kolltveit',
+                url: 'https://blog.sheddow.xyz/css-timing-attack/',
+                likes: 4
+            }
+
+            const error = await api
+                .put(`/api/blogs/${wrongId}`)
+                .send(updatedBlog)
+                .expect(404)
+                .expect('Content-Type', /application\/json/)
+
+            expect(error.body).toHaveProperty('error')
+        })
+
+        test('invalid id returns status 400', async () => {
+            const newBlog = {
+                title: 'A timing attack with CSS selectors and Javascript',
+                author: 'Sigurd Kolltveit',
+                url: 'https://blog.sheddow.xyz/css-timing-attack/',
+                likes: 4
+            }
+
+            const error = await api
+                .put('/api/blogs/1')
+                .send(newBlog)
+                .expect(400)
+                .expect('Content-Type', /application\/json/)
+
+            expect(error.body).toHaveProperty('error')
+        })
+    })
+})
+
+describe('POST comments', () => {
+    let existingBlogs
+
+    describe('Success', () => {
+        beforeEach(async () => {
+            existingBlogs = await helper.blogsInDb()
+        })
+
+        test('new comment is saved to server correctly, with token', async () => {
+            const newComment = { comment: 'additonal comment' }
+
+            const updatedBlog = await api
+                .post(`/api/blogs/${existingBlogs[0].id}/comments`)
+                .set('Authorization', `bearer ${blogUser.token}`)
+                .send(newComment)
+                .expect(201)
+                .expect('Content-Type', /application\/json/)
+
+            expect(updatedBlog.body.comments).toHaveLength(existingBlogs[0].comments.length + 1)
+            expect(updatedBlog.body.comments).toContain(newComment.comment)
+        })
+
+        test('new comment is saved to server correctly, without token', async () => {
+            const newComment = { comment: 'additonal comment without token' }
+
+            const updatedBlog = await api
+                .post(`/api/blogs/${existingBlogs[0].id}/comments`)
+                .send(newComment)
+                .expect(201)
+                .expect('Content-Type', /application\/json/)
+
+            expect(updatedBlog.body.comments).toHaveLength(existingBlogs[0].comments.length + 1)
+            expect(updatedBlog.body.comments).toContain(newComment.comment)
+        })
     })
 
-    test('blog is partially updated to server correctly', async () => {
-        const existingBlogs = await helper.blogsInDb()
-        const updatedBlog = {
-            title: 'A timing attack with CSS selectors and Javascript',
-            author: 'Sigurd Kolltveit',
-        }
+    describe('Fail', () => {
+        test('new comment with missing comment returns status 400', async () => {
+            existingBlogs = await helper.blogsInDb()
 
-        const returnedBlog = await api
-            .put(`/api/blogs/${existingBlogs[0].id}`)
-            .send(updatedBlog)
-            .expect(200)
-            .expect('Content-Type', /application\/json/)
+            await api
+                .post(`/api/blogs/${existingBlogs[0].id}/comments`)
+                .set('Authorization', `bearer ${blogUser.token}`)
+                .send({})
+                .expect(400)
+        })
 
-        expect(returnedBlog.body.title).not.toEqual(existingBlogs[0].title)
-        expect(returnedBlog.body.author).not.toEqual(existingBlogs[0].author)
-        expect(returnedBlog.body.title).toEqual(updatedBlog.title)
-        expect(returnedBlog.body.author).toEqual(updatedBlog.author)
-        expect(returnedBlog.body.url).toEqual(existingBlogs[0].url)
-        expect(returnedBlog.body.likes).toEqual(existingBlogs[0].likes)
-    })
+        test('new comment with non existing blog id returns status 404', async () => {
+            const wrongId = await helper.nonExistingId()
+            const newComment = { comment: 'additonal comment without token' }
 
-    test('invalid blog returns status 400', async () => {
-        const existingBlogs = await helper.blogsInDb()
-        const updatedBlog = {
-            title: '',
-            author: 'Sigurd Kolltveit',
-            url: 'https://blog.sheddow.xyz/css-timing-attack/'
-        }
+            await api
+                .post(`/api/blogs/${wrongId}/comments`)
+                .set('Authorization', `bearer ${blogUser.token}`)
+                .send(newComment)
+                .expect(404)
+        })
 
-        const error = await api
-            .put(`/api/blogs/${existingBlogs[0].id}`)
-            .send(updatedBlog)
-            .expect(400)
-            .expect('Content-Type', /application\/json/)
+        test('new comment with invalid blog id returns status 404', async () => {
+            const newComment = { comment: 'additonal comment without token' }
 
-        expect(error.body).toHaveProperty('error')
-    })
-
-    test('non existing id returns status 404', async () => {
-        const wrongId = await helper.nonExistingId()
-        const updatedBlog = {
-            title: 'A timing attack with CSS selectors and Javascript',
-            author: 'Sigurd Kolltveit',
-            url: 'https://blog.sheddow.xyz/css-timing-attack/',
-            likes: 4
-        }
-
-        const error = await api
-            .put(`/api/blogs/${wrongId}`)
-            .send(updatedBlog)
-            .expect(404)
-            .expect('Content-Type', /application\/json/)
-
-        expect(error.body).toHaveProperty('error')
-    })
-
-    test('invalid id returns status 400', async () => {
-        const newBlog = {
-            title: 'A timing attack with CSS selectors and Javascript',
-            author: 'Sigurd Kolltveit',
-            url: 'https://blog.sheddow.xyz/css-timing-attack/',
-            likes: 4
-        }
-
-        const error = await api
-            .put('/api/blogs/1')
-            .send(newBlog)
-            .expect(400)
-            .expect('Content-Type', /application\/json/)
-
-        expect(error.body).toHaveProperty('error')
+            await api
+                .post('/api/blogs/1/comments')
+                .set('Authorization', `bearer ${blogUser.token}`)
+                .send(newComment)
+                .expect(400)
+        })
     })
 })

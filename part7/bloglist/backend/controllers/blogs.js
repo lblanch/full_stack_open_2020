@@ -79,6 +79,12 @@ blogsRouter.post('/:id/comments', async (request, response) => {
         return response.status(404).send({ error: 'not found' })
     }
 
+    if (!request.body.comment) {
+        return response.status(400).json({
+            error: 'invalid or missing comment'
+        })
+    }
+
     blog.comments = blog.comments.concat(request.body.comment)
     let updatedBlog = await blog.save()
     updatedBlog = await updatedBlog.populate('user', { username: 1, name: 1 }).execPopulate()
